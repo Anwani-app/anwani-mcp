@@ -4,7 +4,7 @@ Anwani MCP connects AI agents to Anwani, the digital address infrastructure for 
 
 Create, list, update, share, and delete your Anwani addresses through OAuth, with the same ownership, permissions, and account limits used across Anwani.
 
-Works with Cursor and other MCP-compatible clients. Cursor is the first supported MCP client; it is not the product identity.
+Works with Cursor and other MCP-compatible clients.
 
 Product page: https://9code.app/ai-agents
 
