@@ -19,7 +19,7 @@ This repository is a **connection client only**. It does not contain Firebase pr
 ## Quick start
 
 ```bash
-git clone https://github.com/Daheimumzug/anwani-mcp.git
+git clone https://github.com/Anwani-app/anwani-mcp.git
 cd anwani-mcp
 node login.mjs
 ```
