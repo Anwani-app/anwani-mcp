@@ -1,8 +1,8 @@
 {
   "name": "anwani-mcp",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "mcpName": "io.github.Anwani-app/anwani-mcp",
-  "description": "Anwani (عنواني) MCP — local stdio bridge + remote HTTP for digital address codes after OAuth consent.",
+  "description": "MCP client for Anwani (9code.app) — create and manage permanent 9-digit address codes through OAuth.",
   "type": "module",
   "license": "MIT",
   "engines": {

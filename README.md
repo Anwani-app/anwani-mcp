@@ -1,10 +1,12 @@
 # Anwani MCP
 
-Public Cursor / MCP bridge for [Anwani](https://9code.app) (عنواني).
+Anwani MCP connects AI agents to Anwani, the digital address infrastructure for permanent 9-digit address codes tied to real-world locations.
 
-Create, list, update, share, and delete digital address codes **after you approve** in the browser (Google OAuth + PKCE).
+Create, list, update, share, and delete your Anwani addresses through OAuth, with the same ownership, permissions, and account limits used across Anwani.
 
 Product page: https://9code.app/ai-agents
+
+Sign-in uses Google OAuth + PKCE in the browser — approve once, then the bridge saves the token on this machine.
 
 OAuth client id: `anwani-cursor`
 
