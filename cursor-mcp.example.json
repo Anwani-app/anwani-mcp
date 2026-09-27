@@ -1,10 +1,8 @@
 {
   "mcpServers": {
     "anwani": {
-      "command": "node",
-      "args": [
-        "/absolute/path/to/anwani-mcp/server.mjs"
-      ]
+      "command": "npx",
+      "args": ["-y", "anwani-mcp"]
     }
   }
 }

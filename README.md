@@ -8,7 +8,7 @@ Product page: https://9code.app/ai-agents
 
 OAuth client id: `anwani-cursor`
 
-This repository is a **connection client only**. It does not contain Firebase project internals, Firestore paths, or server secrets.
+This package is a **connection client only**. It does not contain Firebase project internals, Firestore paths, or server secrets.
 
 ## Requirements
 
@@ -16,12 +16,17 @@ This repository is a **connection client only**. It does not contain Firebase pr
 - [Cursor](https://cursor.com) (or another MCP client)
 - An Anwani account (created automatically during Google consent if you are new)
 
-## Quick start
+## Install
 
 ```bash
-git clone https://github.com/Anwani-app/anwani-mcp.git
-cd anwani-mcp
-node login.mjs
+npm install -g anwani-mcp
+anwani-mcp-login
+```
+
+Or without a global install:
+
+```bash
+npx -y anwani-mcp-login
 ```
 
 What happens:
@@ -33,27 +38,21 @@ What happens:
 
 No JSON paste. Never paste codes or tokens into chat.
 
-Fallback (rare): `node login.mjs --paste` if loopback is blocked on your network.
+Fallback (rare): `anwani-mcp-login --paste` if loopback is blocked on your network.
 
 ## Cursor MCP config
 
-Add an absolute path to `server.mjs` on **your** machine:
+Recommended (always uses the published package):
 
 ```json
 {
   "mcpServers": {
     "anwani": {
-      "command": "node",
-      "args": ["/absolute/path/to/anwani-mcp/server.mjs"]
+      "command": "npx",
+      "args": ["-y", "anwani-mcp"]
     }
   }
 }
-```
-
-Windows PowerShell:
-
-```powershell
-(Resolve-Path .\server.mjs).Path
 ```
 
 Then open a **new** chat and ask Anwani to create or update an address. Provide a real map pin (coordinates or Maps link) — the agent must not invent a location.
@@ -73,12 +72,22 @@ Photo upload is not available via this bridge — use the Anwani app or Telegram
 
 ## Security
 
-- Tokens live in `~/.anwani-mcp/` (never inside this repo).
+- Tokens live in `~/.anwani-mcp/` (never inside this package).
 - Access tokens are opaque `anwani_at_…` values.
 - Same account quota as the app / Telegram (usually 10 addresses).
 - Revoke by running login again (re-consent invalidates prior tokens) or email support@9code.app.
 
+## From source
+
+```bash
+git clone https://github.com/Anwani-app/anwani-mcp.git
+cd anwani-mcp
+node login.mjs
+```
+
 ## Smoke test
+
+From a clone:
 
 ```bash
 node smoke.mjs

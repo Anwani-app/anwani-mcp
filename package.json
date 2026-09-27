@@ -1,6 +1,6 @@
 {
   "name": "anwani-mcp",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Anwani (عنواني) MCP stdio bridge — create and manage digital address codes via Cursor after OAuth consent.",
   "type": "module",
   "license": "MIT",
