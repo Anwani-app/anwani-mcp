@@ -1,0 +1,12 @@
+# Local auth / secrets — never commit
+.token.json
+.pkce-session.json
+.code-paste.json
+.old-token.txt
+*.token.json
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*

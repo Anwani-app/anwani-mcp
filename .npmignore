@@ -1,0 +1,7 @@
+# Secrets / local auth state — never publish
+.token.json
+.pkce-session.json
+.code-paste.json
+.old-token.txt
+*.token.json
+node_modules/

@@ -1,0 +1,39 @@
+{
+  "name": "anwani-mcp",
+  "version": "1.1.0",
+  "description": "Anwani (عنواني) MCP stdio bridge — create and manage digital address codes via Cursor after OAuth consent.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "anwani-mcp": "./server.mjs",
+    "anwani-mcp-login": "./login.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "login.mjs",
+    "smoke.mjs",
+    "lib.mjs",
+    "config.mjs",
+    "cursor-mcp.example.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "mcp",
+    "anwani",
+    "address",
+    "cursor",
+    "oauth"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anwani/anwani-mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/anwani/anwani-mcp/issues"
+  },
+  "homepage": "https://9code.app/ai-agents"
+}
