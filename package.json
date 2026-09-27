@@ -8,11 +8,12 @@
     "node": ">=18"
   },
   "bin": {
-    "anwani-mcp": "./bin/anwani-mcp.js",
-    "anwani-mcp-login": "./bin/anwani-mcp-login.js"
+    "anwani-mcp": "anwani-mcp.js",
+    "anwani-mcp-login": "anwani-mcp-login.js"
   },
   "files": [
-    "bin",
+    "anwani-mcp.js",
+    "anwani-mcp-login.js",
     "server.mjs",
     "login.mjs",
     "smoke.mjs",
@@ -31,7 +32,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Anwani-app/anwani-mcp.git"
+    "url": "git+https://github.com/Anwani-app/anwani-mcp.git"
   },
   "bugs": {
     "url": "https://github.com/Anwani-app/anwani-mcp/issues"
