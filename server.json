@@ -1,0 +1,36 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Anwani-app/anwani-mcp",
+  "title": "Anwani",
+  "description": "Anwani digital addresses: create/list/patch/share/delete after OAuth. Real map pins only.",
+  "version": "1.1.2",
+  "websiteUrl": "https://9code.app/ai-agents",
+  "repository": {
+    "url": "https://github.com/Anwani-app/anwani-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "anwani-mcp",
+      "version": "1.1.2",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://us-central1-nine-code-anwani.cloudfunctions.net/mcpRemote",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Bearer anwani_at_… from Anwani OAuth (https://9code.app/authorize)",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}

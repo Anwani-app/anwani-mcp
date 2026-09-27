@@ -1,0 +1,12 @@
+# Smithery — https://smithery.ai/docs
+# Lists / launches the published npm stdio bridge.
+# OAuth login is done once on the user's machine: `npx -y anwani-mcp-login`
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties: {}
+    additionalProperties: false
+  commandFunction: |-
+    (config) => ({ command: 'npx', args: ['-y', 'anwani-mcp'] })
+  exampleConfig: {}

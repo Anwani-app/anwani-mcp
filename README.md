@@ -93,6 +93,13 @@ From a clone:
 node smoke.mjs
 ```
 
+## Publish / directories
+
+See [PUBLISH.md](./PUBLISH.md) for Official MCP Registry, Glama, Smithery, and npm.
+
+- Local (Cursor): `npx -y anwani-mcp` after `anwani-mcp-login`
+- Remote: `https://us-central1-nine-code-anwani.cloudfunctions.net/mcpRemote`
+
 ## License
 
 MIT

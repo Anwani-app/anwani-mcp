@@ -1,7 +1,8 @@
 {
   "name": "anwani-mcp",
-  "version": "1.1.1",
-  "description": "Anwani MCP stdio bridge — create and manage digital address codes via Cursor after OAuth consent.",
+  "version": "1.1.2",
+  "mcpName": "io.github.Anwani-app/anwani-mcp",
+  "description": "Anwani (عنواني) MCP — local stdio bridge + remote HTTP for digital address codes after OAuth consent.",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -28,7 +29,8 @@
     "anwani",
     "address",
     "cursor",
-    "oauth"
+    "oauth",
+    "model-context-protocol"
   ],
   "repository": {
     "type": "git",
