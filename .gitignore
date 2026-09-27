@@ -4,6 +4,7 @@
 .code-paste.json
 .old-token.txt
 *.token.json
+.tools/
 node_modules/
 .DS_Store
 Thumbs.db
