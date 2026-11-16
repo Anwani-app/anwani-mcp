@@ -27,8 +27,125 @@ try {
   /* ignore */
 }
 
-const PROTOCOL_VERSION = '2024-11-05';
+/** MCP spec 2025-06-18 — structured output / annotations era */
+const PROTOCOL_VERSION = '2025-06-18';
 const SERVER_INFO = { name: 'anwani', version: pkgVersion };
+
+const CODE_PROP = {
+  type: 'string',
+  pattern: '^[1-9]{9}$',
+  description:
+    'Anwani permanent 9-digit address code (digits 1–9 only). Example: 365131449',
+};
+
+const PIN_PROP = {
+  type: 'string',
+  pattern: '^\\d{4}$',
+  description:
+    'Optional 4-digit privacy PIN that couriers must enter to view details. Example: 4821',
+};
+
+const FLOOR_PROP = {
+  oneOf: [
+    { type: 'number', description: 'Floor number as integer. Example: 5' },
+    {
+      type: 'string',
+      maxLength: 10,
+      description: 'Floor label when not a plain number. Example: G or 3B',
+    },
+  ],
+  description: 'Floor / level of the unit. Example: 5 or G',
+};
+
+const ADDRESS_FIELD_PROPS = {
+  ownerName: {
+    type: 'string',
+    maxLength: 80,
+    description:
+      'Display name for the address owner only if the user provided one. Example: أحمد',
+  },
+  label: {
+    type: 'string',
+    maxLength: 80,
+    description: 'Short friendly label for the address. Example: البيت or المكتب',
+  },
+  category: {
+    type: 'string',
+    maxLength: 40,
+    description: 'Optional category tag. Example: home, work, shop',
+  },
+  instructions: {
+    type: 'string',
+    maxLength: 500,
+    description:
+      'Delivery notes for the courier (door color, buzzer, landmark). Example: الباب الأصفر، دق الجرس',
+  },
+  street: {
+    type: 'string',
+    maxLength: 120,
+    description: 'Street name if the user provided it. Example: شارع التحلية',
+  },
+  houseNumber: {
+    type: 'string',
+    maxLength: 20,
+    description: 'House / unit number if provided. Example: 12',
+  },
+  buildingName: {
+    type: 'string',
+    maxLength: 80,
+    description: 'Building name if provided. Example: برج الملقا',
+  },
+  floor: FLOOR_PROP,
+  postalCode: {
+    type: 'string',
+    maxLength: 20,
+    description: 'Postal / ZIP code if provided. Example: 13521',
+  },
+  city: {
+    type: 'string',
+    maxLength: 80,
+    description: 'City only if the user provided it. Example: الرياض',
+  },
+  neighborhood: {
+    type: 'string',
+    maxLength: 80,
+    description: 'Neighborhood / district if provided. Example: حي الملقا',
+  },
+  country: {
+    type: 'string',
+    maxLength: 40,
+    description:
+      'Country name or ISO-ish label if provided. Example: السعودية or SA',
+  },
+  saudiNationalCode: {
+    type: 'string',
+    maxLength: 8,
+    description:
+      'Optional Saudi national short code (4 letters + 4 digits, AAAA####) when country is SA. Does not replace the Anwani 9-digit code. Example: RADC2959',
+  },
+  phone: {
+    type: 'string',
+    maxLength: 20,
+    description:
+      'Contact phone in international or local form if provided. Example: +9665xxxxxxx',
+  },
+  pinEnabled: {
+    type: 'boolean',
+    description:
+      'When true, details stay locked until the correct 4-digit PIN is entered. Example: true',
+  },
+  pin: PIN_PROP,
+};
+
+const PATCH_FIELD_PROPS = {
+  ...ADDRESS_FIELD_PROPS,
+  saudiNationalCode: {
+    type: 'string',
+    maxLength: 8,
+    description:
+      'Optional Saudi national short code (AAAA####) when country is SA. Pass empty string to clear. Example: RADC2959',
+  },
+};
 
 const TOOL_SCHEMAS = {
   session: {
@@ -36,14 +153,22 @@ const TOOL_SCHEMAS = {
     description:
       'Check that Anwani is connected for this user. Does not return internal IDs.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
-    annotations: { readOnlyHint: true },
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+    },
   },
   list_addresses: {
     name: 'list_addresses',
     description:
       'List addresses owned by the connected Anwani account (same quota as app/Telegram).',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
-    annotations: { readOnlyHint: true },
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+    },
     scopes: ['address:read'],
   },
   create_address: {
@@ -54,44 +179,35 @@ const TOOL_SCHEMAS = {
       type: 'object',
       required: ['idempotency_key', 'latitude', 'longitude'],
       properties: {
-        idempotency_key: { type: 'string', minLength: 8, maxLength: 128 },
+        idempotency_key: {
+          type: 'string',
+          minLength: 8,
+          maxLength: 128,
+          description:
+            'Client-generated key to safely retry the same create without duplicates. Example: create-2026-11-16-home-a1b2c3d4',
+        },
         latitude: {
           type: 'number',
           minimum: -90,
           maximum: 90,
-          description: 'User-provided latitude only — never invent.',
+          description:
+            'User-provided latitude only — never invent. Example: 24.7136',
         },
         longitude: {
           type: 'number',
           minimum: -180,
           maximum: 180,
-          description: 'User-provided longitude only — never invent.',
+          description:
+            'User-provided longitude only — never invent. Example: 46.6753',
         },
-        ownerName: {
-          type: 'string',
-          maxLength: 80,
-          description: 'Display name only if the user provided one.',
-        },
-        label: { type: 'string', maxLength: 80 },
-        category: { type: 'string', maxLength: 40 },
-        instructions: { type: 'string', maxLength: 500 },
-        street: { type: 'string', maxLength: 120 },
-        buildingName: { type: 'string', maxLength: 80 },
-        floor: {
-          oneOf: [{ type: 'number' }, { type: 'string', maxLength: 10 }],
-        },
-        city: {
-          type: 'string',
-          maxLength: 80,
-          description: 'Only if the user provided a city.',
-        },
-        neighborhood: { type: 'string', maxLength: 80 },
-        country: { type: 'string', maxLength: 40 },
-        phone: { type: 'string', maxLength: 20 },
-        pinEnabled: { type: 'boolean' },
-        pin: { type: 'string', pattern: '^\\d{4}$' },
+        ...ADDRESS_FIELD_PROPS,
       },
       additionalProperties: false,
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
     },
     scopes: ['address:create'],
   },
@@ -103,29 +219,21 @@ const TOOL_SCHEMAS = {
       type: 'object',
       required: ['code', 'changes'],
       properties: {
-        code: { type: 'string', pattern: '^[1-9]{9}$' },
+        code: CODE_PROP,
         changes: {
           type: 'object',
-          properties: {
-            ownerName: { type: 'string', maxLength: 80 },
-            label: { type: 'string', maxLength: 80 },
-            instructions: { type: 'string', maxLength: 500 },
-            street: { type: 'string', maxLength: 120 },
-            buildingName: { type: 'string', maxLength: 80 },
-            floor: {
-              oneOf: [{ type: 'number' }, { type: 'string', maxLength: 10 }],
-            },
-            city: { type: 'string', maxLength: 80 },
-            neighborhood: { type: 'string', maxLength: 80 },
-            country: { type: 'string', maxLength: 40 },
-            phone: { type: 'string', maxLength: 20 },
-            pinEnabled: { type: 'boolean' },
-            pin: { type: 'string', pattern: '^\\d{4}$' },
-          },
+          description:
+            'Partial address fields to update. Omit keys you do not want to change. Example: {"instructions":"الباب الأصفر","floor":5}',
+          properties: PATCH_FIELD_PROPS,
           additionalProperties: false,
         },
       },
       additionalProperties: false,
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
     },
     scopes: ['address:update'],
   },
@@ -135,10 +243,14 @@ const TOOL_SCHEMAS = {
     inputSchema: {
       type: 'object',
       required: ['code'],
-      properties: { code: { type: 'string', pattern: '^[1-9]{9}$' } },
+      properties: { code: CODE_PROP },
       additionalProperties: false,
     },
-    annotations: { readOnlyHint: true },
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+    },
     scopes: ['address:share'],
   },
   delete_address: {
@@ -147,10 +259,14 @@ const TOOL_SCHEMAS = {
     inputSchema: {
       type: 'object',
       required: ['code'],
-      properties: { code: { type: 'string', pattern: '^[1-9]{9}$' } },
+      properties: { code: CODE_PROP },
       additionalProperties: false,
     },
-    annotations: { destructiveHint: true },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: false,
+    },
     scopes: ['address:delete'],
   },
 };
