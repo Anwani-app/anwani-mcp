@@ -3,7 +3,7 @@
   "name": "io.github.Anwani-app/anwani-mcp",
   "title": "Anwani",
   "description": "Anwani: digital addressing — permanent 9-digit codes for physical locations.",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "websiteUrl": "https://9code.app/ai-agents",
   "repository": {
     "url": "https://github.com/Anwani-app/anwani-mcp",
@@ -13,7 +13,7 @@
     {
       "registryType": "npm",
       "identifier": "anwani-mcp",
-      "version": "1.1.5",
+      "version": "1.1.6",
       "transport": {
         "type": "stdio"
       }

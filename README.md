@@ -65,8 +65,9 @@ Then open a **new** chat and ask Anwani to create or update an address. Provide 
 
 | Tool | Needs scope | Notes |
 |------|-------------|--------|
-| `session` | — | Connection + granted scopes (no internal IDs) |
-| `list_addresses` | `address:read` | Your addresses only |
+| `check_session` | — | Connection status + granted scopes (no internal IDs); legacy name `session` still works |
+| `list_addresses` | `address:read` | Your addresses only, newest first |
+| `get_address` | `address:read` | One owned address by its 9-digit code |
 | `create_address` | `address:create` | Requires `idempotency_key` + real lat/lng from you |
 | `patch_address` | `address:update` | Field patch; coordinates locked after create |
 | `share_address` | `address:share` | Public `9code.app/code/…` link |

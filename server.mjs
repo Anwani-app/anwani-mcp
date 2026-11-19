@@ -147,34 +147,114 @@ const PATCH_FIELD_PROPS = {
   },
 };
 
+/** Loose address object (additionalProperties stay open so clients never reject). */
+const ADDRESS_OUTPUT_SCHEMA = {
+  type: 'object',
+  description: 'One owned Anwani address (no internal user IDs).',
+  properties: {
+    code: {
+      type: 'string',
+      description: 'Permanent 9-digit Anwani address code.',
+    },
+    label: { type: 'string', description: 'Friendly label, if set.' },
+    latitude: { type: 'number', description: 'Pin latitude.' },
+    longitude: { type: 'number', description: 'Pin longitude.' },
+    url: { type: 'string', description: 'Public link https://9code.app/code/{code}.' },
+    updatedAt: { type: 'number', description: 'Last update time (epoch ms).' },
+  },
+  additionalProperties: true,
+};
+
 const TOOL_SCHEMAS = {
-  session: {
-    name: 'session',
+  check_session: {
+    name: 'check_session',
     description:
-      'Check that Anwani is connected for this user. Does not return internal IDs.',
+      'Returns connection status for the signed-in Anwani user as {ok, connected, scopes, expiresAt}. Identity comes from the saved OAuth token (no parameters) and never includes Firebase UIDs or internal IDs. Use it when unsure the user is signed in before calling address tools; do not use it to list or change addresses (use list_addresses, get_address, create_address, patch_address instead). Read-only.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    outputSchema: {
+      type: 'object',
+      properties: {
+        ok: { type: 'boolean', description: 'True when the request succeeded.' },
+        connected: {
+          type: 'boolean',
+          description: 'True when a valid OAuth token is saved.',
+        },
+        scopes: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Granted scopes, e.g. address:read.',
+        },
+        expiresAt: {
+          description: 'Token expiry (epoch ms or ISO string), or null.',
+        },
+      },
+      additionalProperties: true,
+    },
     annotations: {
+      title: 'Check Anwani session',
       readOnlyHint: true,
       destructiveHint: false,
       idempotentHint: true,
+      openWorldHint: true,
     },
   },
   list_addresses: {
     name: 'list_addresses',
     description:
-      'List addresses owned by the connected Anwani account (same quota as app/Telegram).',
+      'Returns all addresses owned by the connected account as {ok, addresses[]} (same quota as app/Telegram, typically up to 10), newest updates first. Use it to browse or when you do not yet know a 9-digit code; use get_address when you already have a code. Read-only; the account comes from OAuth.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    outputSchema: {
+      type: 'object',
+      properties: {
+        ok: { type: 'boolean', description: 'True when the request succeeded.' },
+        addresses: {
+          type: 'array',
+          items: ADDRESS_OUTPUT_SCHEMA,
+          description: 'Owned addresses, newest updates first.',
+        },
+      },
+      additionalProperties: true,
+    },
     annotations: {
+      title: 'List my addresses',
       readOnlyHint: true,
       destructiveHint: false,
       idempotentHint: true,
+      openWorldHint: true,
+    },
+    scopes: ['address:read'],
+  },
+  get_address: {
+    name: 'get_address',
+    description:
+      'Returns one owned address by its permanent 9-digit code as {ok, address}. Use it when the user already provided a code; use list_addresses to discover codes. Fails clearly if the code is invalid or not owned by the connected account. Read-only; does not mutate.',
+    inputSchema: {
+      type: 'object',
+      required: ['code'],
+      properties: { code: CODE_PROP },
+      additionalProperties: false,
+    },
+    outputSchema: {
+      type: 'object',
+      properties: {
+        ok: { type: 'boolean', description: 'True when the request succeeded.' },
+        address: ADDRESS_OUTPUT_SCHEMA,
+      },
+      additionalProperties: true,
+    },
+    annotations: {
+      title: 'Get one address',
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
     },
     scopes: ['address:read'],
   },
   create_address: {
     name: 'create_address',
     description:
-      'Create one address within the user quota. Requires a real map pin from the user (latitude/longitude). NEVER invent coordinates, city, or display name. If the user did not provide a location (coords, Maps link, or clear place), ask them first — do not call this tool with sample/demo data.',
+      'Creates one new permanent 9-digit Anwani address within the account quota and returns {ok, code, created, url}. Requires a real user-provided latitude/longitude (map pin) — NEVER invent coordinates, city, or name; if the user gave no location (coords, Maps link, or clear place), ask first and do not call with sample data. Use it for new places; use patch_address to edit an existing code. Not idempotent unless the same idempotency_key is retried, which returns the original result.',
     inputSchema: {
       type: 'object',
       required: ['idempotency_key', 'latitude', 'longitude'],
@@ -204,17 +284,32 @@ const TOOL_SCHEMAS = {
       },
       additionalProperties: false,
     },
+    outputSchema: {
+      type: 'object',
+      properties: {
+        ok: { type: 'boolean', description: 'True when the request succeeded.' },
+        code: {
+          type: 'string',
+          description: 'New permanent 9-digit Anwani address code.',
+        },
+        created: { type: 'boolean', description: 'True when a new address was made.' },
+        url: { type: 'string', description: 'Public link https://9code.app/code/{code}.' },
+      },
+      additionalProperties: true,
+    },
     annotations: {
+      title: 'Create address',
       readOnlyHint: false,
       destructiveHint: false,
       idempotentHint: false,
+      openWorldHint: true,
     },
     scopes: ['address:create'],
   },
   patch_address: {
     name: 'patch_address',
     description:
-      'Patch only provided fields (e.g. instructions). Does not clear omitted fields. Coordinates cannot be changed.',
+      'Updates only the fields present in `changes` on an owned address and returns the result; omitted fields stay unchanged. Coordinates are immutable after create. Use it to edit label, instructions, floor and similar fields; use create_address for a new pin; use delete_address only to remove an address permanently. Fails if the code is not owned by the connected account.',
     inputSchema: {
       type: 'object',
       required: ['code', 'changes'],
@@ -231,31 +326,47 @@ const TOOL_SCHEMAS = {
       additionalProperties: false,
     },
     annotations: {
+      title: 'Update address fields',
       readOnlyHint: false,
       destructiveHint: false,
       idempotentHint: false,
+      openWorldHint: true,
     },
     scopes: ['address:update'],
   },
   share_address: {
     name: 'share_address',
-    description: 'Return the public deep link for an owned address code.',
+    description:
+      'Returns the public deep link https://9code.app/code/{code} for an owned address as {ok, code, url, shareText}. Use it when the user wants a shareable URL; it does not modify the address. Fails if the code is invalid or not owned by the connected account.',
     inputSchema: {
       type: 'object',
       required: ['code'],
       properties: { code: CODE_PROP },
       additionalProperties: false,
     },
+    outputSchema: {
+      type: 'object',
+      properties: {
+        ok: { type: 'boolean', description: 'True when the request succeeded.' },
+        code: { type: 'string', description: 'The 9-digit address code.' },
+        url: { type: 'string', description: 'Public link https://9code.app/code/{code}.' },
+        shareText: { type: 'string', description: 'Text to paste when sharing.' },
+      },
+      additionalProperties: true,
+    },
     annotations: {
+      title: 'Share address link',
       readOnlyHint: true,
       destructiveHint: false,
       idempotentHint: true,
+      openWorldHint: true,
     },
     scopes: ['address:share'],
   },
   delete_address: {
     name: 'delete_address',
-    description: 'Permanently delete an address owned by the connected account.',
+    description:
+      'Permanently deletes an owned address and its photos (irreversible) and returns {ok, deleted}. Prefer patch_address for edits; confirm user intent before calling. Fails if the code is not owned by the connected account.',
     inputSchema: {
       type: 'object',
       required: ['code'],
@@ -263,9 +374,11 @@ const TOOL_SCHEMAS = {
       additionalProperties: false,
     },
     annotations: {
+      title: 'Delete address',
       readOnlyHint: false,
       destructiveHint: true,
       idempotentHint: false,
+      openWorldHint: true,
     },
     scopes: ['address:delete'],
   },
@@ -276,9 +389,13 @@ function send(msg) {
 }
 
 function textResult(obj) {
-  return {
+  const result = {
     content: [{ type: 'text', text: JSON.stringify(obj, null, 2) }],
   };
+  if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+    result.structuredContent = obj;
+  }
+  return result;
 }
 
 function errorResult(err) {
@@ -325,8 +442,13 @@ async function listToolsFiltered() {
     const allowed = new Set(
       (catalog.tools || []).map((t) => t.name).filter(Boolean),
     );
+    // check_session replaces backend `session` (always listed).
+    // get_address shares address:read with list_addresses (older backends omit it).
     return Object.values(TOOL_SCHEMAS).filter(
-      (t) => t.name === 'session' || allowed.has(t.name),
+      (t) =>
+        t.name === 'check_session' ||
+        allowed.has(t.name) ||
+        (t.name === 'get_address' && allowed.has('list_addresses')),
     );
   } catch {
     try {
@@ -340,7 +462,8 @@ async function listToolsFiltered() {
 
 async function callTool(name, args) {
   const accessToken = await requireToken();
-  if (name === 'session') {
+  // `session` is the legacy name for check_session.
+  if (name === 'check_session' || name === 'session') {
     const raw = await mcpCall(accessToken, { action: 'session' });
     return publicSessionView(raw);
   }
@@ -389,10 +512,11 @@ async function handle(msg) {
         id,
         result: {
           tools: tools.map(
-            ({ name, description, inputSchema, annotations }) => ({
+            ({ name, description, inputSchema, outputSchema, annotations }) => ({
               name,
               description,
               inputSchema,
+              ...(outputSchema ? { outputSchema } : {}),
               ...(annotations ? { annotations } : {}),
             }),
           ),
