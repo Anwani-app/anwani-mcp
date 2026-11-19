@@ -1,5 +1,7 @@
 # Anwani MCP
 
+[![mcptry](https://mcptry.com/badge/io.github.Anwani-app/anwani-mcp)](https://mcptry.com/servers/io.github.Anwani-app/anwani-mcp)
+
 Anwani is a digital addressing platform that gives every physical location a permanent 9-digit address code.
 
 This MCP connects AI agents to Anwani so they can create and manage those codes through OAuth — same account, ownership, and limits.

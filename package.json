@@ -1,6 +1,6 @@
 {
   "name": "anwani-mcp",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "mcpName": "io.github.Anwani-app/anwani-mcp",
   "description": "Anwani is a digital addressing platform with permanent 9-digit address codes. MCP client (9code.app) via OAuth.",
   "type": "module",

@@ -3,8 +3,20 @@
   "name": "io.github.Anwani-app/anwani-mcp",
   "title": "Anwani",
   "description": "Anwani: digital addressing — permanent 9-digit codes for physical locations.",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "websiteUrl": "https://9code.app/ai-agents",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/Anwani-app/anwani-mcp/main/assets/icon-512.png",
+      "mimeType": "image/png",
+      "sizes": ["512x512"]
+    },
+    {
+      "src": "https://raw.githubusercontent.com/Anwani-app/anwani-mcp/main/assets/icon-192.png",
+      "mimeType": "image/png",
+      "sizes": ["192x192"]
+    }
+  ],
   "repository": {
     "url": "https://github.com/Anwani-app/anwani-mcp",
     "source": "github"
@@ -13,7 +25,7 @@
     {
       "registryType": "npm",
       "identifier": "anwani-mcp",
-      "version": "1.1.6",
+      "version": "1.1.7",
       "transport": {
         "type": "stdio"
       }
