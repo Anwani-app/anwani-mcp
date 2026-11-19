@@ -313,7 +313,13 @@ function toolsFromScopes(scopes) {
 }
 
 async function listToolsFiltered() {
-  const accessToken = await requireToken();
+  // Discovery / Glama inspect must work without a local OAuth token.
+  // Auth is enforced on tools/call only.
+  const tok = await loadToken();
+  if (!tok?.access_token) {
+    return Object.values(TOOL_SCHEMAS);
+  }
+  const accessToken = tok.access_token;
   try {
     const catalog = await mcpCall(accessToken, { action: 'tools/list' });
     const allowed = new Set(
@@ -323,8 +329,12 @@ async function listToolsFiltered() {
       (t) => t.name === 'session' || allowed.has(t.name),
     );
   } catch {
-    const session = await mcpCall(accessToken, { action: 'session' });
-    return toolsFromScopes(session.scopes || []);
+    try {
+      const session = await mcpCall(accessToken, { action: 'session' });
+      return toolsFromScopes(session.scopes || []);
+    } catch {
+      return Object.values(TOOL_SCHEMAS);
+    }
   }
 }
 
